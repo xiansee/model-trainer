@@ -8,7 +8,10 @@ class StepOutput(BaseModel):
     true_output: Tensor
     model_output: Tensor
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        arbitrary_types_allowed=True
+    )
    
 
 class TrainingModule(pl.LightningModule):
