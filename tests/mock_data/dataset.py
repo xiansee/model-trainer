@@ -5,11 +5,11 @@ from torch.utils.data import Dataset
 
 
 def calculate_V(
-    t_series: list[float], 
+    t_series: list[float],
     i_series: list[float],
-    R: float = 1, 
-    C: float = 10, 
-    i_R0: float = 0
+    R: float = 1,
+    C: float = 10,
+    i_R0: float = 0,
 ) -> list[float]:
     """
     Calculates the voltage response of a single parallel resistor-capacitor circuit.
@@ -35,21 +35,21 @@ def calculate_V(
 
     V_series = [i_R0 * R]
     delta_t_series = np.array(t_series[1:]) - np.array(t_series[:-1])
-    
+
     for delta_t, i in zip(delta_t_series, i_series[1:]):
         # Discrete time equation for parallel R-C circuit
-        i_R = np.exp(-delta_t/(R*C)) * i_R0 + (1 - np.exp(-delta_t/(R*C))) * i
+        i_R = np.exp(-delta_t / (R * C)) * i_R0 + (1 - np.exp(-delta_t / (R * C))) * i
 
-        V_series.append(i_R*R)
+        V_series.append(i_R * R)
         i_R0 = i_R
 
     return V_series
 
 
 class RCCircuitDataset(Dataset):
-    """ 
-    Mock dataset for the time series voltage response of a single parallel resistor 
-    capacitor circuit. 
+    """
+    Mock dataset for the time series voltage response of a single parallel resistor
+    capacitor circuit.
 
     Parameters
     ----------
@@ -58,13 +58,13 @@ class RCCircuitDataset(Dataset):
     C : float, optional
         Capacitance in Farads, by default 10
     N_time_steps : int
-        Number of time steps for each time series  
+        Number of time steps for each time series
     N_time_series : int
         Number of time series
     """
 
     def __init__(
-        self,  
+        self,
         R: float = 1,
         C: float = 10,
         N_time_steps: int = 300,
@@ -81,11 +81,11 @@ class RCCircuitDataset(Dataset):
         self.N_time_steps = N_time_steps
         self.N_time_series = N_time_series
         self.data = []
-        self.generate_mock_data()        
+        self.generate_mock_data()
 
     def generate_mock_data(self) -> None:
-        """ Generate mock data with randomized time series current. """
-        
+        """Generate mock data with randomized time series current."""
+
         t_data = [np.arange(0, self.N_time_steps, 1) for _ in range(self.N_time_series)]
         i_data = [np.random.rand(len(t)) for t in t_data]
 
@@ -94,10 +94,7 @@ class RCCircuitDataset(Dataset):
             for t, i in zip(t_data, i_data)
         ]
 
-        self.data = [
-            [i, V]
-            for i, V in zip(i_data, V_data)
-        ]
+        self.data = [[i, V] for i, V in zip(i_data, V_data)]
 
     def __len__(self) -> int:
         return len(self.data)

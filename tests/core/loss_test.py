@@ -5,7 +5,7 @@ from model_trainer.core.loss import MAE, MSE, RMSE
 
 
 def test_loss_functions():
-    """ Test loss functions for model training. """
+    """Test loss functions for model training."""
 
     Y1 = torch.randn(10)
     Y2 = torch.randn(10)
