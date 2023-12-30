@@ -13,7 +13,7 @@ class StepOutput(BaseModel, protected_namespaces=(), arbitrary_types_allowed=Tru
     Parameters
     ----------
     loss : Tensor
-        Step loss value (e.g., training loss/validationa ccuracy)
+        Step loss value (e.g., training loss/validation accuracy)
     true_output : Tensor
         True output variable
     model_output : Tensor
@@ -36,8 +36,8 @@ class TrainingModule(pl.LightningModule):
         PyTorch model
     loss_function : nn.Module
         Function to compute accuracy between true vs model output
-    optimizer_type : optim.Optimizer
-        Type of optimizer
+    optimizer_algorithm : optim.Optimizer
+        Optimizer algorithm
     optimizer_kwargs, optional
         Keyword arguments to initialize optimizer, by default {}
     """
@@ -46,13 +46,13 @@ class TrainingModule(pl.LightningModule):
         self,
         model: nn.Module,
         loss_function: nn.Module,
-        optimizer_type: optim.Optimizer,
+        optimizer_algorithm: optim.Optimizer,
         optimizer_kwargs: dict[str, Any] = {},
     ):
         super().__init__()
         self.model = model
         self.loss_fn = loss_function
-        self.optimizer_type = optimizer_type
+        self.optimizer_algorithm = optimizer_algorithm
         self.optimizer_kwargs = optimizer_kwargs
 
     def training_step(self, batch: list, batch_idx: int) -> dict[str, Any]:
@@ -109,7 +109,7 @@ class TrainingModule(pl.LightningModule):
     def configure_optimizers(self) -> optim.Optimizer:
         """Initialize optimizer for training."""
 
-        optimizer = self.optimizer_type(
+        optimizer = self.optimizer_algorithm(
             self.model.parameters(), **self.optimizer_kwargs
         )
 
