@@ -1,6 +1,5 @@
 from enum import Enum
 
-from pydantic import BaseModel
 from torch import optim
 
 
@@ -9,19 +8,6 @@ class _OptimizerChoices(str, Enum):
 
     adam: str = "adam"
     sgd: str = "sgd"
-
-
-class OptimizerConfig(BaseModel, extra="allow"):
-    """
-    Optimizer configuration model with arbitrary fields allowed.
-
-    Parameters:
-    -----------
-    lr : float
-        Learning rate
-    """
-
-    lr: float
 
 
 def get_optimizer(name: str) -> optim.Optimizer:
