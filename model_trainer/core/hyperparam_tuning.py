@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ class Hyperparameter(BaseModel, ABC):
     Parameters
     ----------
     name : str
-        Description for hyperparameter
+        Name of hyperparameter
     """
 
     name: str
@@ -28,7 +28,7 @@ class IntegerHyperparameter(Hyperparameter):
     high : int
         Highest value in tuning range
     log : bool, optional
-        Whether to tune within a logarithmic range, by default False
+        Whether to sample from log domain, by default False
     """
 
     low: int
@@ -47,9 +47,22 @@ class FloatHyperparameter(Hyperparameter):
     high : float
         Highest value in tuning range
     log : bool, optional
-        Whether to tune within a logarithmic range, by default False
+        Whether to sample from log domain, by default False
     """
 
     low: float
     high: float
     log: Optional[bool] = False
+
+
+class CategoricalHyperparameter(Hyperparameter):
+    """
+    Hyperparameter for float type.
+
+    Parameters
+    ----------
+    choices : bool | int | float | str
+        Categorical choices
+    """
+
+    choices: list[Union[bool, int, float, str]]

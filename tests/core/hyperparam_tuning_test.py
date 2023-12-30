@@ -2,6 +2,7 @@ import pytest
 from pydantic import BaseModel, ValidationError
 
 from model_trainer.core.hyperparam_tuning import (
+    CategoricalHyperparameter,
     FloatHyperparameter,
     Hyperparameter,
     IntegerHyperparameter,
@@ -47,7 +48,9 @@ def test_integer_hyperparameter():
         IntegerHyperparameter(name="FooHyperparam", low=1, high=5, log=False)
 
     except ValidationError:
-        pytest.fail("IntegerHyperparameter failed to validate a correct set of inputs.")
+        pytest.fail(
+            "IntegerHyperparameter failed to instantiate a correct set of inputs."
+        )
 
 
 def test_float_hyperparameter():
@@ -69,4 +72,26 @@ def test_float_hyperparameter():
         FloatHyperparameter(name="FooHyperparam", low=1.2, high=5.5, log=True)
 
     except ValidationError:
-        pytest.fail("IntegerHyperparameter failed to validate a correct set of inputs.")
+        pytest.fail(
+            "IntegerHyperparameter failed to instantiate a correct set of inputs."
+        )
+
+
+def test_categorical_hyperparameter():
+    """Test initialization of categorical hyperparameter."""
+
+    with pytest.raises(ValidationError):
+        # Missing name argument
+        CategoricalHyperparameter(choices=[1, 2, 3])
+
+    try:
+        # Correct initializations
+        CategoricalHyperparameter(name="FooHyperparam", choices=[1, 2, 3])
+        CategoricalHyperparameter(name="FooHyperparam", choices=[1.3, 2.1, 3.7])
+        CategoricalHyperparameter(name="FooHyperparam", choices=["a", "b", "c"])
+        CategoricalHyperparameter(name="FooHyperparam", choices=[True, False])
+
+    except ValidationError:
+        pytest.fail(
+            "CategoricalHyperparameter failed to instantiate with a correct set of inputs."
+        )
