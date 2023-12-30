@@ -12,6 +12,15 @@ class _OptimizerChoices(str, Enum):
 
 
 class OptimizerConfig(BaseModel, extra="allow"):
+    """
+    Optimizer configuration model with arbitrary fields allowed.
+
+    Parameters:
+    -----------
+    lr : float
+        Learning rate
+    """
+
     lr: float
 
 
