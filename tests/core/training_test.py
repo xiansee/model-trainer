@@ -26,7 +26,7 @@ def test_training_module():
     training_module = TrainingModule(
         model=model,
         loss_function=loss_fn,
-        optimizer_type=optimizer,
+        optimizer_algorithm=optimizer,
         optimizer_kwargs=optimizer_kwargs,
     )
 
