@@ -55,7 +55,7 @@ def test_float_hyperparameter():
         FloatHyperparameter(low=1.2, high=5.5)
 
         # Incorrect argument type
-        FloatHyperparameter(low=1.2, high=5)
+        FloatHyperparameter(name="FooHyperparam", low=1.2, high=5)
 
         # Missing high argument
         FloatHyperparameter(name="FooHyperparam", low=1.2)
