@@ -1,8 +1,18 @@
+from abc import ABC, abstractmethod
+
 import torch
 from torch import nn
 
 
-class RMSE(nn.Module):
+class LossFunction(nn.Module, ABC):
+    """Abstract base class for loss functions."""
+
+    @abstractmethod
+    def forward(self, y_pred, y_true):
+        raise NotImplementedError
+
+
+class RMSE(LossFunction):
     """Root mean square error loss function."""
 
     def __init__(self):
@@ -14,7 +24,7 @@ class RMSE(nn.Module):
         return rmse
 
 
-class MAE(nn.Module):
+class MAE(LossFunction):
     """Mean absolute error loss function."""
 
     def __init__(self):
@@ -24,7 +34,7 @@ class MAE(nn.Module):
         return torch.mean(torch.abs(y_pred - y_true))
 
 
-class MSE(nn.Module):
+class MSE(LossFunction):
     """Mean square error loss function."""
 
     def __init__(self):
