@@ -4,10 +4,22 @@ import lightning.pytorch as pl
 from pydantic import BaseModel
 from torch import Tensor, nn, optim
 
-from model_trainer.core.experiment_config import OptimizerConfig
-
 
 class StepOutput(BaseModel, protected_namespaces=(), arbitrary_types_allowed=True):
+    """
+    Interface for training, validation and test step output. PyTorch callbacks can
+    leverage this interface.
+
+    Parameters
+    ----------
+    loss : Tensor
+        Step loss value (e.g., training loss/validationa ccuracy)
+    true_output : Tensor
+        True output variable
+    model_output : Tensor
+        Model output variable
+    """
+
     loss: Tensor
     true_output: Tensor
     model_output: Tensor
@@ -24,10 +36,10 @@ class TrainingModule(pl.LightningModule):
         PyTorch model
     loss_function : nn.Module
         Function to compute accuracy between true vs model output
-    initial_lr : float, optional
-        Initial learning rate, by default 0.01
-    weight_decay : float, optional
-        Optimizer weight decay, by default 0.001
+    optimizer_type : optim.Optimizer
+        Type of optimizer
+    optimizer_kwargs, optional
+        Keyword arguments to initialize optimizer, by default {}
     """
 
     def __init__(
@@ -35,13 +47,13 @@ class TrainingModule(pl.LightningModule):
         model: nn.Module,
         loss_function: nn.Module,
         optimizer_type: optim.Optimizer,
-        optimizer_config: OptimizerConfig,
+        optimizer_kwargs: dict[str, Any] = {},
     ):
         super().__init__()
         self.model = model
         self.loss_fn = loss_function
         self.optimizer_type = optimizer_type
-        self.optimizer_config = optimizer_config
+        self.optimizer_kwargs = optimizer_kwargs
 
     def training_step(self, batch: list, batch_idx: int) -> dict[str, Any]:
         """Step for training datasets."""
@@ -97,9 +109,8 @@ class TrainingModule(pl.LightningModule):
     def configure_optimizers(self) -> optim.Optimizer:
         """Initialize optimizer for training."""
 
-        optimizer_config_dict = self.optimizer_config.model_dump()
         optimizer = self.optimizer_type(
-            self.model.parameters(), **optimizer_config_dict
+            self.model.parameters(), **self.optimizer_kwargs
         )
 
         return optimizer
