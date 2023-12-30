@@ -1,5 +1,5 @@
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from model_trainer.core.hyperparam_tuning import (
     CategoricalHyperparameter,
