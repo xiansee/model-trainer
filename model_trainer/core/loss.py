@@ -66,12 +66,12 @@ def get_loss_function(name: str) -> LossFunction:
     Returns
     -------
     LossFunction
-        Loss function class
+        Loss function
 
     Raises
     ------
     ValueError
-        If the name of loss function is not an invalid option.
+        If the name of loss function is not a valid option.
     NotImplementedError
         If the loss function is not implemented. This is a development error.
     """

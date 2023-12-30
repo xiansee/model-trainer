@@ -27,7 +27,7 @@ def get_optimizer(name: str) -> optim.Optimizer:
     Raises
     ------
     ValueError
-        If the name of optimizer is not an invalid option.
+        If the name of optimizer is not a valid option.
     NotImplementedError
         If the optimizer is not implemented. This is a development error.
     """
