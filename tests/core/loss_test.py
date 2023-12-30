@@ -9,14 +9,14 @@ def test_loss_function_base_class():
     """Test LossFunction base class."""
 
     with pytest.raises(TypeError):
-
+        # Missing abstract method
         class FooLoss(LossFunction):
             pass
 
         FooLoss()
 
     try:
-
+        # Correct class definition
         class FooLoss(LossFunction):
             def forward(self, y_pred, y_true):
                 pass
