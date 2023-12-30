@@ -15,10 +15,13 @@ def test_hyperparameter_base_class():
         foo_var: str
 
     with pytest.raises(ValidationError):
+        # Missing required "name" argument
         FooHyperparameter(foo_var="")
 
     try:
+        # Correct initialization
         FooHyperparameter(name="Foo", foo_var="")
+
     except ValidationError:
         pytest.fail(
             "Hyperparameter child class failed to instantiate with correct set of inputs."
