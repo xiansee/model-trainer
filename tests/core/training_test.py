@@ -1,6 +1,7 @@
 import lightning.pytorch as pl
 
 from model_trainer.core.loss import RMSE
+from model_trainer.core.optimizer import OptimizerConfig, get_optimizer
 from model_trainer.core.training import TrainingModule
 from tests.mock_data.data_module import DataModule
 from tests.mock_data.dataset import RCCircuitDataset
@@ -19,9 +20,14 @@ def test_training_module():
         num_lstm_layers=1,
     )
     loss_fn = RMSE()
+    optimizer = get_optimizer(name="adam")
+    optimizer_config = OptimizerConfig(lr=0.01, weight_decay=0.001)
 
     training_module = TrainingModule(
-        model=model, loss_function=loss_fn, initial_lr=0.005, weight_decay=0.001
+        model=model,
+        loss_function=loss_fn,
+        optimizer_type=optimizer,
+        optimizer_config=optimizer_config,
     )
 
     assert training_module.model == model

@@ -1,16 +1,16 @@
 from typing import Any
 
 import lightning.pytorch as pl
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from torch import Tensor, nn, optim
 
+from model_trainer.core.experiment_config import OptimizerConfig
 
-class StepOutput(BaseModel):
+
+class StepOutput(BaseModel, protected_namespaces=(), arbitrary_types_allowed=True):
     loss: Tensor
     true_output: Tensor
     model_output: Tensor
-
-    model_config = ConfigDict(protected_namespaces=(), arbitrary_types_allowed=True)
 
 
 class TrainingModule(pl.LightningModule):
@@ -34,14 +34,14 @@ class TrainingModule(pl.LightningModule):
         self,
         model: nn.Module,
         loss_function: nn.Module,
-        initial_lr: float = 0.01,
-        weight_decay: float = 0.001,
+        optimizer_type: optim.Optimizer,
+        optimizer_config: OptimizerConfig,
     ):
         super().__init__()
         self.model = model
         self.loss_fn = loss_function
-        self.initial_lr = initial_lr
-        self.weight_decay = weight_decay
+        self.optimizer_type = optimizer_type
+        self.optimizer_config = optimizer_config
 
     def training_step(self, batch: list, batch_idx: int) -> dict[str, Any]:
         """Step for training datasets."""
@@ -95,8 +95,11 @@ class TrainingModule(pl.LightningModule):
         }
 
     def configure_optimizers(self) -> optim.Optimizer:
-        optimizer = optim.Adam(
-            self.parameters(), lr=self.initial_lr, weight_decay=self.weight_decay
+        """Initialize optimizer for training."""
+
+        optimizer_config_dict = self.optimizer_config.model_dump()
+        optimizer = self.optimizer_type(
+            self.model.parameters(), **optimizer_config_dict
         )
 
         return optimizer
