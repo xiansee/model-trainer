@@ -2,7 +2,14 @@ import numpy as np
 import pytest
 import torch
 
-from model_trainer.core.loss import MAE, MSE, RMSE, LossFunction
+from model_trainer.core.loss import (
+    MAE,
+    MSE,
+    RMSE,
+    LossFunction,
+    _LossFunctionChoices,
+    get_loss_function,
+)
 
 
 def test_loss_function_base_class():
@@ -42,3 +49,25 @@ def test_loss_functions():
     assert MAE_loss(Y1, Y2) == np.absolute(np.subtract(Y1, Y2)).mean()
     assert MSE_loss(Y1, Y2) == np.square(np.subtract(Y1, Y2)).mean()
     assert RMSE_loss(Y1, Y2) == np.sqrt(np.square(np.subtract(Y1, Y2)).mean())
+
+
+def test_get_loss_function():
+    """Test get loss function."""
+
+    with pytest.raises(ValueError):
+        # Unsupported option
+        get_loss_function(name="foo")
+
+    # Verify all supported options are implemented
+    for supported_option in _LossFunctionChoices:
+        try:
+            get_loss_function(name=supported_option.value)
+        except NotImplementedError:
+            pytest.fail(
+                f"{supported_option.value} loss function provided as an option but not implemented."
+            )
+
+    assert isinstance(get_loss_function(name="rmse"), RMSE)
+    assert isinstance(get_loss_function(name="RMSE"), RMSE)
+    assert isinstance(get_loss_function(name="mae"), MAE)
+    assert isinstance(get_loss_function(name="mse"), MSE)
