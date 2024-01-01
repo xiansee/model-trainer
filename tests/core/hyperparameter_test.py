@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from model_trainer.core.hyperparam_tuning import (
+from model_trainer.core.hyperparameter import (
     CategoricalHyperparameter,
     FloatHyperparameter,
     Hyperparameter,
