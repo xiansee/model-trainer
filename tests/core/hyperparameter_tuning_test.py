@@ -48,6 +48,8 @@ def test_define_module():
 
 
 def test_hyperparameter_tuning():
+    """Test execution and completion of hyperparameter tuning."""
+
     mock_dataset = RCCircuitDataset(R=0.1, C=10, N_time_steps=1000, N_time_series=10)
     mock_model = LSTM
 
