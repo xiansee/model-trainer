@@ -36,10 +36,8 @@ class TrainingModule(pl.LightningModule):
         PyTorch model
     loss_function : nn.Module
         Function to compute accuracy between true vs model output
-    optimizer_algorithm : optim.Optimizer
-        Optimizer algorithm
-    optimizer_kwargs, optional
-        Keyword arguments to initialize optimizer, by default {}
+    optimizer : optim.Optimizer
+        Traning optimizer
     """
 
     def __init__(
