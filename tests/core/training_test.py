@@ -20,14 +20,14 @@ def test_training_module():
         num_lstm_layers=1,
     )
     loss_fn = RMSE()
-    optimizer = get_optimizer(name="adam")
+    optimizer_algorithm = get_optimizer(name="adam")
     optimizer_kwargs = {"lr": 0.01, "weight_decay": 0.001}
+    optimizer = optimizer_algorithm(params=model.parameters(), **optimizer_kwargs)
 
     training_module = TrainingModule(
         model=model,
         loss_function=loss_fn,
-        optimizer_algorithm=optimizer,
-        optimizer_kwargs=optimizer_kwargs,
+        optimizer=optimizer,
     )
 
     assert training_module.model == model

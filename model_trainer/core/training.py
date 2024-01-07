@@ -46,14 +46,12 @@ class TrainingModule(pl.LightningModule):
         self,
         model: nn.Module,
         loss_function: nn.Module,
-        optimizer_algorithm: optim.Optimizer,
-        optimizer_kwargs: dict[str, Any] = {},
+        optimizer: optim.Optimizer,
     ):
         super().__init__()
         self.model = model
         self.loss_fn = loss_function
-        self.optimizer_algorithm = optimizer_algorithm
-        self.optimizer_kwargs = optimizer_kwargs
+        self.optimizer = optimizer
 
     def training_step(self, batch: list, batch_idx: int) -> dict[str, Any]:
         """Step for training datasets."""
@@ -107,10 +105,6 @@ class TrainingModule(pl.LightningModule):
         }
 
     def configure_optimizers(self) -> optim.Optimizer:
-        """Initialize optimizer for training."""
+        """Configure optimizer for training."""
 
-        optimizer = self.optimizer_algorithm(
-            self.model.parameters(), **self.optimizer_kwargs
-        )
-
-        return optimizer
+        return self.optimizer
