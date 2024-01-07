@@ -37,7 +37,7 @@ class TrainingModule(pl.LightningModule):
     loss_function : nn.Module
         Function to compute accuracy between true vs model output
     optimizer : optim.Optimizer
-        Traning optimizer
+        Training optimizer
     """
 
     def __init__(
