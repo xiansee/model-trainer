@@ -1,13 +1,14 @@
-from typing import Optional
+from copy import copy
+from typing import Any, Optional, Union
 
 import lightning as L
 from pydantic import AfterValidator, BaseModel
 from torch import nn
 from typing_extensions import Annotated
 
-from model_trainer.core.hyperparam_tuning import Hyperparameter
-from model_trainer.core.loss import get_loss_function
-from model_trainer.core.optimizer import get_optimizer
+from model_trainer.core.hyperparameter import Hyperparameter, get_hyperparameter
+from model_trainer.core.loss import _LossFunctionChoices, get_loss_function
+from model_trainer.core.optimizer import _OptimizerChoices, get_optimizer
 
 
 class ModelConfig(BaseModel, extra="allow", arbitrary_types_allowed=True):
@@ -16,11 +17,11 @@ class ModelConfig(BaseModel, extra="allow", arbitrary_types_allowed=True):
 
     Parameters:
     -----------
-    model : nn.Module
+    model : nn.Module | Any
         PyTorch model
     """
 
-    model: nn.Module
+    model: Union[nn.Module, Any]
 
 
 class DataModuleConfig(BaseModel, extra="allow", arbitrary_types_allowed=True):
@@ -29,11 +30,11 @@ class DataModuleConfig(BaseModel, extra="allow", arbitrary_types_allowed=True):
 
     Parameters:
     -----------
-    data_module : L.LightningDataModule
+    data_module : L.LightningDataModule | Any
         Lightning data module
     """
 
-    data_module: L.LightningDataModule
+    data_module: Union[L.LightningDataModule, Any]
 
 
 class TrainerConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
@@ -46,7 +47,7 @@ class TrainerConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         Name of loss function
     """
 
-    loss_function: Annotated[str, AfterValidator(get_loss_function)]
+    loss_function: Annotated[_LossFunctionChoices, AfterValidator(get_loss_function)]
 
 
 class OptimizerConfig(BaseModel, extra="allow"):
@@ -61,13 +62,13 @@ class OptimizerConfig(BaseModel, extra="allow"):
         Learning rate
     """
 
-    optimizer_algorithm: Annotated[str, AfterValidator(get_optimizer)]
+    optimizer_algorithm: Annotated[_OptimizerChoices, AfterValidator(get_optimizer)]
     lr: float | Hyperparameter
 
 
-class ExperimentConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
+class TrainingConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """
-    Experiment configuration base model for data validation.
+    Training run configuration base model for data validation.
 
     Parameters:
     -----------
@@ -107,3 +108,41 @@ class ExperimentConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     data_module: DataModuleConfig
     trainer: TrainerConfig
     optimizer: OptimizerConfig
+
+
+def process_user_config(user_config: dict) -> TrainingConfig:
+    """
+    Parses user input and prepare config for model training.
+
+    Parameters
+    ----------
+    user_config : dict
+        User settings for training
+
+    Returns
+    -------
+    TrainingConfig
+        Config for model training
+    """
+
+    def is_hyperparameter(variable_input: dict) -> bool:
+        """Determines whether a variable should be treated as a hyperparameter."""
+
+        return variable_input.get(hyperparam_type_key)
+
+    hyperparam_type_key = "hyperparameter_type"
+    config_groups = ["model", "optimizer", "trainer", "data_module"]
+
+    processed_config = copy(user_config)
+
+    for group in config_groups:
+        for arg_name, arg_value in user_config.get(group).items():
+            if isinstance(arg_value, dict) and is_hyperparameter(arg_value):
+                hyperparam_type = get_hyperparameter(arg_value.get(hyperparam_type_key))
+                arg_value.pop(hyperparam_type_key)
+
+                processed_config[group][arg_name] = hyperparam_type(**arg_value)
+
+    training_config = TrainingConfig(**processed_config)
+
+    return training_config

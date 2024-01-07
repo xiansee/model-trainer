@@ -3,13 +3,19 @@ import pytest
 from pydantic import ValidationError
 from torch import nn
 
-from model_trainer.core.experiment_config import (
+from model_trainer.core.hyperparameter import FloatHyperparameter, IntegerHyperparameter
+from model_trainer.core.loss import RMSE
+from model_trainer.core.training_config import (
     DataModuleConfig,
-    ExperimentConfig,
     ModelConfig,
     OptimizerConfig,
     TrainerConfig,
+    TrainingConfig,
+    process_user_config,
 )
+from tests.mock_data.data_module import DataModule
+from tests.mock_data.dataset import RCCircuitDataset
+from tests.mock_data.model import LSTM
 
 
 def test_model_config():
@@ -17,10 +23,7 @@ def test_model_config():
 
     with pytest.raises(ValidationError):
         # Missing required input "model"
-        TrainerConfig(FooParam=1)
-
-        # Incorrect model type
-        ModelConfig(model="model")
+        ModelConfig(FooParam=1)
 
     try:
         # Correct input
@@ -84,8 +87,8 @@ def test_optimizer_config():
         pytest.fail("OptimizerConfig failed to initialize with correct set of inputs.")
 
 
-def test_experiment_config():
-    """Test initialization of ExperimentConfig"""
+def test_training_config():
+    """Test initialization of TrainingConfig"""
 
     class MockCorrectModel(nn.Module):
         pass
@@ -102,16 +105,16 @@ def test_experiment_config():
 
     with pytest.raises(ValidationError):
         # Missing required fields
-        ExperimentConfig(experiment="FooExp")
+        TrainingConfig(experiment="FooExp")
 
         # Incorrect experiment type
-        ExperimentConfig(experiment=1, num_trials=1, **mock_config)
+        TrainingConfig(experiment=1, num_trials=1, **mock_config)
 
         # Incorrect num_trials type
-        ExperimentConfig(experiment="FooExp", num_trials=1.2, **mock_config)
+        TrainingConfig(experiment="FooExp", num_trials=1.2, **mock_config)
 
         # Incorrect experiment_tags type
-        ExperimentConfig(
+        TrainingConfig(
             experiment="FooExp",
             num_trials=1,
             experiment_tags={1: "FooTagValue"},
@@ -119,13 +122,66 @@ def test_experiment_config():
         )
 
         # Initialize with unsupported argument
-        ExperimentConfig(
+        TrainingConfig(
             experiment="FooExp", num_trials=1, unsupported_arg="FooArg", **mock_config
         )
 
     # Correct initialization
     try:
-        ExperimentConfig(experiment="FooExp", num_trials=1, **mock_config)
+        TrainingConfig(experiment="FooExp", num_trials=1, **mock_config)
 
     except ValidationError:
-        pytest.fail("ExperimentConfig failed to validate a correct set of inputs.")
+        pytest.fail("TrainingConfig failed to validate a correct set of inputs.")
+
+
+def test_process_user_config():
+    """Test processing of user config into TrainingConfig."""
+
+    mock_dataset = RCCircuitDataset(R=0.1, C=10, N_time_steps=1000, N_time_series=10)
+    mock_model = LSTM
+
+    mock_user_config = {
+        "experiment": "foo_experiment",
+        "model": {
+            "model": mock_model,
+            "input_size": 2,
+            "hidden_size": 10,
+            "output_size": 1,
+            "num_lstm_layers": {
+                "hyperparameter_type": "integer",
+                "name": "num_lstm_layers",
+                "low": 1,
+                "high": 3,
+            },
+        },
+        "data_module": {"data_module": DataModule, "dataset": mock_dataset},
+        "optimizer": {
+            "optimizer_algorithm": "adam",
+            "lr": {
+                "hyperparameter_type": "float",
+                "name": "learning_rate",
+                "low": 0.001,
+                "high": 0.1,
+                "log": True,
+            },
+        },
+        "trainer": {"loss_function": "rmse"},
+    }
+
+    training_config = process_user_config(mock_user_config)
+
+    assert isinstance(training_config, TrainingConfig)
+    assert isinstance(training_config.model, ModelConfig)
+    assert isinstance(training_config.data_module, DataModuleConfig)
+    assert isinstance(training_config.optimizer, OptimizerConfig)
+    assert isinstance(training_config.trainer, TrainerConfig)
+
+    assert training_config.experiment == "foo_experiment"
+    assert training_config.data_module.data_module == DataModule
+    assert training_config.data_module.dataset == mock_dataset
+    assert isinstance(training_config.optimizer.lr, FloatHyperparameter)
+    assert isinstance(training_config.trainer.loss_function, RMSE)
+
+    assert training_config.model.model == mock_model
+    assert training_config.model.output_size == 1
+    assert isinstance(training_config.model.num_lstm_layers, IntegerHyperparameter)
