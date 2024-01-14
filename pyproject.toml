@@ -24,6 +24,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest==7.4.3"]
+lint = ["ruff==0.1.13"]
 
 [tool.ruff]
 exclude = [
