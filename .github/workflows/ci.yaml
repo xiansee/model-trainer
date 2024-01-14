@@ -1,0 +1,38 @@
+name: ci
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  setup:
+    name: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' 
+      - name: install dependencies
+        run: |
+          pip install .
+          pip install .[test]
+          pip install .[lint]
+  lint:
+    name: code linting
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: run ruff linter
+        run: ruff check .
+  test:
+    name: unit testing
+    runs-on: ubuntu-latest
+    needs: [setup, lint]
+    steps:
+      - name: run pytest
+        run: pytest .
+    
+
