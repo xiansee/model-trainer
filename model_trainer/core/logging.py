@@ -12,7 +12,8 @@ from torch import nn
 
 class Logger(Callback):
     """
-    MLflow based logger for Optuna-based hyperparameter tuning.
+    MLflow based logger for Optuna-based hyperparameter tuning. Uses PyTorch callbacks
+    to log at specific steps (e.g., training/validation/test) during model fit.
 
     Parameters
     ----------
@@ -81,6 +82,7 @@ class Logger(Callback):
     @contextmanager
     def start_hyperparameter_tuning_logs(self) -> None:
         """Starts MLflow logging for hyperparameter tuning."""
+
         try:
             yield mlflow.start_run(
                 experiment_id=self.experiment_id,
