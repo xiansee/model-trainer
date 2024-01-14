@@ -1,0 +1,13 @@
+name: ci
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: build and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: build package
+        run: python -m build
