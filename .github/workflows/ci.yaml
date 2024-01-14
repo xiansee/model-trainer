@@ -17,9 +17,8 @@ jobs:
           python-version: '3.11' 
       - name: install dependencies
         run: |
-          pip install .
-          pip install .[test]
-          pip install .[lint]
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
   lint:
     name: code linting
     runs-on: ubuntu-latest
