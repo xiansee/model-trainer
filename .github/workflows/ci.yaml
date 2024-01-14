@@ -19,7 +19,7 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: run ruff linter
         run: ruff check .
-  test:
+  unit-test:
     name: unit testing
     runs-on: ubuntu-latest
     needs: lint
@@ -36,5 +36,19 @@ jobs:
           pip install -r requirements-dev.txt
       - name: run pytest
         run: pytest .
-    
+  install-package:
+    name: install package
+    runs-on: ubuntu-latest
+    needs: unit-test
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' 
+      - name: install
+        run: pip install .
+      - name: test import
+        run: python -c "import model_trainer"
 

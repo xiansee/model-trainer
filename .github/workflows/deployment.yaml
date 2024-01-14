@@ -1,4 +1,4 @@
-name: ci
+name: deployment
 on:
   push:
     branches:
@@ -19,3 +19,8 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: build package
         run: python -m build
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: /dist/*.tar.gz
+
