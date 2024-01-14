@@ -215,12 +215,7 @@ def run_hyperparameter_tuning(training_config: TrainingConfig) -> None:
     objective = get_objective_function(training_config=training_config, logger=logger)
 
     with logger.start_hyperparameter_tuning_logs():
-        study = optuna.create_study(
-            direction="minimize",
-            pruner=optuna.pruners.MedianPruner(
-                n_startup_trials=10, n_warmup_steps=20, interval_steps=5
-            ),
-        )
+        study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=training_config.num_trials)
 
         test_best_trial(
