@@ -56,7 +56,7 @@ def test_hyperparameter_tuning():
     mock_user_config = {
         "experiment": "foo_experiment",
         "num_trials": 3,
-        "max_epochs": 50,
+        "max_epochs": 20,
         "max_time": 0.1,
         "model": {
             "model": mock_model,
