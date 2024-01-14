@@ -203,7 +203,6 @@ class Logger(Callback):
 
         epoch_num = pl_module.current_epoch
         training_loss = float(trainer.logged_metrics.get("training_loss", "nan"))
-
         mlflow.log_metric(
             key="training_loss",
             value=training_loss,
@@ -224,7 +223,6 @@ class Logger(Callback):
         validation_accuracy = float(
             trainer.logged_metrics.get("validation_accuracy", "nan")
         )
-
         mlflow.log_metric(
             key="validation_accuracy",
             value=validation_accuracy,
@@ -252,7 +250,6 @@ class Logger(Callback):
         """PyTorch module callback for test end."""
 
         test_accuracy = float(trainer.logged_metrics.get("test_accuracy", "nan"))
-
         mlflow.log_metric(
             key="test_accuracy",
             value=test_accuracy,
