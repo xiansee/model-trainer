@@ -123,7 +123,6 @@ def initialize_trial(
 
     # Init trainer
     trainer = pl.Trainer(
-        # default_root_dir="../lightining_logs",
         max_epochs=training_config.max_epochs,
         max_time={"minutes": training_config.max_time},
         logger=False,
@@ -156,7 +155,7 @@ def get_objective_function(training_config: TrainingConfig, logger: Logger) -> C
     def objective(trial: Trial) -> Tensor:
         """Objective function for Optuna study."""
 
-        with logger.start_trial_logs(trial_number=trial.number):
+        with logger.start_trial_logs(trial=trial):
             trainer, training_module, data_module = initialize_trial(
                 training_config=training_config, trial=trial, callbacks=[logger]
             )
@@ -166,6 +165,34 @@ def get_objective_function(training_config: TrainingConfig, logger: Logger) -> C
         return validation_accuracy
 
     return objective
+
+
+def test_best_trial(
+    training_config: TrainingConfig, logger: Logger, best_trial: Trial
+) -> None:
+    """
+    Fit and test best trial from hyperparameter tuning study.
+
+    Parameters
+    ----------
+    training_config : TrainingConfig
+        User defined training configuration
+    logger : Logger
+        Hyperparameter tuning logger
+    best_trial : Trial
+        Optuna's best trial
+    """
+
+    with logger.start_best_trial_logs(trial=best_trial):
+        trainer, training_module, data_module = initialize_trial(
+            training_config=training_config, trial=best_trial, callbacks=[logger]
+        )
+        trainer.fit(training_module, data_module)
+        logger.log_model(model=trainer.model)
+
+        trainer.test(training_module, data_module)
+
+    return
 
 
 def run_hyperparameter_tuning(training_config: TrainingConfig) -> None:
@@ -185,7 +212,7 @@ def run_hyperparameter_tuning(training_config: TrainingConfig) -> None:
         experiment_tags=training_config.experiment_tags,
     )
 
-    objective = get_objective_function(training_config=training_config)
+    objective = get_objective_function(training_config=training_config, logger=logger)
 
     with logger.start_hyperparameter_tuning_logs():
         study = optuna.create_study(
@@ -195,5 +222,9 @@ def run_hyperparameter_tuning(training_config: TrainingConfig) -> None:
             ),
         )
         study.optimize(objective, n_trials=training_config.num_trials)
+
+        test_best_trial(
+            training_config=training_config, logger=logger, best_trial=study.best_trial
+        )
 
     return study
