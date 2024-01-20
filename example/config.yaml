@@ -1,0 +1,34 @@
+experiment: foo_experiment
+num_trials: 15
+max_epochs: 20
+
+model: # Specify arguments to intiialize model class
+  input_size: 2
+  hidden_size:
+    hyperparameter_type: integer
+    name: hidden_size
+    low: 10
+    high: 50
+  output_size: 1
+  num_lstm_layers:
+    hyperparameter_type: integer
+    name: num_lstm_layers
+    low: 1
+    high: 3
+
+data_module: # Specify arguments to initialize data module class
+  train_split: 0.7
+  val_split: 0.2
+  test_split: 0.1
+
+optimizer:
+  optimizer_algorithm: adam
+  lr:
+    hyperparameter_type: float
+    name: learning_rate
+    low: 0.001
+    high: 0.1
+    log: True
+
+trainer:
+  loss_function: rmse
