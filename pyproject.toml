@@ -2,9 +2,8 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["model_trainer"]
-include = ["model_trainer*"]
+[tool.setuptools]
+packages = ["model_trainer", "model_trainer.core"]
 
 [project]
 name = "model-trainer"
