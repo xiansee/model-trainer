@@ -2,11 +2,12 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = ["model_trainer"]
+[tool.setuptools.packages.find]
+where = ["model_trainer"]
+include = ["model_trainer*"]
 
 [project]
-name = "model_trainer"
+name = "model-trainer"
 description = "PyTorch ML model training app"
 version = "1.0.0b"
 requires-python = ">=3.11"
