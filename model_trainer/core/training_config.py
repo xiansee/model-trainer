@@ -98,11 +98,11 @@ class TrainingConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
 
     experiment: str
     num_trials: int = 10
+    max_epochs: Optional[int]
     experiment_tags: Optional[dict[str, str]] = {}
     run_name: Optional[str] = None
     artifact_path: Optional[str] = None
-    max_epochs: Optional[int] = None
-    max_time: Optional[float] = None  # [minutes]
+    max_time: Optional[float] = 999_999  # [minutes]
 
     model: ModelConfig
     data_module: DataModuleConfig
