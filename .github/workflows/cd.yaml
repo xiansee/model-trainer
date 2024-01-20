@@ -18,9 +18,31 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: build package
         run: python -m build
-      - name: upload artifact
-        uses: actions/upload-artifact@v4
+      - name: get artifact name
+        id: get_artifact_name
+        run: |
+          ARTIFACT_PATH=$(ls dist/*.tar.gz | head -n 1)
+          ARTIFACT_NAME=$(basename $ARTIFACT_PATH)
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+          echo "ARTIFACT_PATH=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
+      - name: create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: tarball
-          path: dist/*.tar.gz
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: upload release asset
+        id: upload_release_asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: ${{ steps.get_artifact_name.outputs.ARTIFACT_PATH }}
+          asset_name: ${{ steps.get_artifact_name.outputs.ARTIFACT_NAME }}
+          asset_content_type: application/gzip
 
