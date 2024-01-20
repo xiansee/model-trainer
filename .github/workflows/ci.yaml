@@ -50,5 +50,5 @@ jobs:
       - name: install
         run: pip install .
       - name: test import
-        run: python -c "import model_trainer"
+        run: python -c "import model_trainer; import model_trainer.core"
 
