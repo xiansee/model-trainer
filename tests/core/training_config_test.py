@@ -108,27 +108,34 @@ def test_training_config():
         TrainingConfig(experiment="FooExp")
 
         # Incorrect experiment type
-        TrainingConfig(experiment=1, num_trials=1, **mock_config)
+        TrainingConfig(experiment=1, num_trials=1, max_epochs=10, **mock_config)
 
         # Incorrect num_trials type
-        TrainingConfig(experiment="FooExp", num_trials=1.2, **mock_config)
+        TrainingConfig(
+            experiment="FooExp", num_trials=1.2, max_epochs=10, **mock_config
+        )
 
         # Incorrect experiment_tags type
         TrainingConfig(
             experiment="FooExp",
             num_trials=1,
+            max_epochs=10,
             experiment_tags={1: "FooTagValue"},
             **mock_config,
         )
 
         # Initialize with unsupported argument
         TrainingConfig(
-            experiment="FooExp", num_trials=1, unsupported_arg="FooArg", **mock_config
+            experiment="FooExp",
+            num_trials=1,
+            max_epochs=10,
+            unsupported_arg="FooArg",
+            **mock_config,
         )
 
     # Correct initialization
     try:
-        TrainingConfig(experiment="FooExp", num_trials=1, **mock_config)
+        TrainingConfig(experiment="FooExp", num_trials=1, max_epochs=10, **mock_config)
 
     except ValidationError:
         pytest.fail("TrainingConfig failed to validate a correct set of inputs.")
@@ -142,6 +149,8 @@ def test_process_user_config():
 
     mock_user_config = {
         "experiment": "foo_experiment",
+        "num_trials": 10,
+        "max_epochs": 20,
         "model": {
             "model": mock_model,
             "input_size": 2,
@@ -177,6 +186,8 @@ def test_process_user_config():
     assert isinstance(training_config.trainer, TrainerConfig)
 
     assert training_config.experiment == "foo_experiment"
+    assert training_config.num_trials == 10
+    assert training_config.max_epochs == 20
     assert training_config.data_module.data_module == DataModule
     assert training_config.data_module.dataset == mock_dataset
     assert isinstance(training_config.optimizer.lr, FloatHyperparameter)

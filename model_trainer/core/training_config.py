@@ -97,7 +97,7 @@ class TrainingConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """
 
     experiment: str
-    num_trials: int = 10
+    num_trials: int
     max_epochs: Optional[int]
     experiment_tags: Optional[dict[str, str]] = {}
     run_name: Optional[str] = None
