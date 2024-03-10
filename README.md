@@ -22,7 +22,7 @@ pip install model-trainer-1.0.0.tar.gz
 ## Usage
 
 1. Copy the `docker-compose.yml` and `main.py` files from the [example](/example) folder.
-2. To train a model, you will need to prepare a `data_module.py` file and `model.py` file, each containing the dataset and model that you would like to train. For example, here is a simple LSTM model:
+2. To train a model, you will need to prepare a `data_module.py` file and `model.py` file, each containing the dataset and model that you would like to train. For example, here is a `model.py` file with a simple LSTM model:
 ```python
 from torch import Tensor, nn
 
@@ -91,7 +91,7 @@ optimizer:
 trainer:
   loss_function: rmse
 ```
-4. Run the training app using `Docker`:
+4. Run the training app using:
 ```
 docker-compose up -d
 ```
@@ -99,4 +99,4 @@ docker-compose up -d
 ```
 docker-compose logs model_trainer
 ```
-6. Visualize hyperparameter tuning results by visiting the mlflow app at `http://localhost:8080`.
+6. Visualize hyperparameter tuning results by visiting the mlFlow app locally at `http://localhost:8080`.
